@@ -1,0 +1,20 @@
+{
+  "name": "quak-vim",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "node ./esbuild.config.js",
+    "watch": "esbuild ./src/* --bundle --minify --outdir=dist --loader:.json=file --asset-names=[name] --loader:.css=text --watch"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.270",
+    "@webcomponents/custom-elements": "^1.6.0",
+    "esbuild": "^0.23.0",
+    "fuse.js": "^7.0.0",
+    "typescript": "^5.5.3"
+  },
+  "dependencies": {
+    "rxjs": "^7.8.1"
+  }
+}
