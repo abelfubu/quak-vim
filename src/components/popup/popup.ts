@@ -6,6 +6,7 @@ import {
   forkJoin,
   fromEvent,
   map,
+  merge,
   Observable,
   scan,
   startWith,
@@ -14,7 +15,6 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import { capitalize } from '../../utils/capitalize.util';
 import { KeyHandlerFactory } from './key-handlers/key-handler.factory';
 import styles from './popup.css';
 
@@ -34,6 +34,7 @@ export class Popup<T extends PopupDataType> extends HTMLElement {
     map((data) =>
       data.map((result) => {
         const li = this.createListItem(result);
+        li.style.display = 'none';
         this.ul.appendChild(li);
         return { ...result, li };
       }),
@@ -111,8 +112,15 @@ export class Popup<T extends PopupDataType> extends HTMLElement {
     return this.data$.pipe(
       takeUntil(this.destroy$),
       switchMap((results) =>
-        this.inputEvent$.pipe(
-          debounceTime(10),
+        merge(
+          this.inputEvent$.pipe(
+            filter(({ key }) => !['ArrowUp', 'ArrowDown'].includes(key)),
+            debounceTime(150),
+          ),
+          this.inputEvent$.pipe(
+            filter(({ key }) => ['ArrowUp', 'ArrowDown'].includes(key)),
+          ),
+        ).pipe(
           startWith(new KeyboardEvent('keydown')),
           scan(
             ({ index, data }, input) => {
@@ -144,7 +152,7 @@ export class Popup<T extends PopupDataType> extends HTMLElement {
     console.log(`Attribute ${name} has changed.`);
   }
 
-  private createListItem({ title, url, favIconUrl, active, id }: T) {
+  private createListItem({ url, favIconUrl, active, id }: T) {
     const chromeFavicon = new URL(chrome.runtime.getURL('/_favicon/'));
     chromeFavicon.searchParams.set('pageUrl', url || '');
     chromeFavicon.searchParams.set('size', '64');
@@ -165,7 +173,7 @@ export class Popup<T extends PopupDataType> extends HTMLElement {
             d="M64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l384 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32zM96 96l320 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L96 160c-17.7 0-32-14.3-32-32s14.3-32 32-32z"
             fill="#555" />
         </svg>
-        <span>${capitalize(title?.split('-')[0] || '')}</span>
+        <span></span>
       </div>
       <div class="${Popup.classes.imageRow}">
         <img width="22" height="22" src="${src}" />

@@ -40,10 +40,14 @@ const keyboardEvent$ = fromEvent<KeyboardEvent>(document, 'keydown').pipe(
 //   window.scrollBy({ top: -100, behavior: 'smooth' });
 // });
 
-keyboardEvent$.pipe(filter(({ key }) => key === 'T')).subscribe(() => {
-  chrome.runtime.sendMessage({ request: 'get-actions' }, (response) => {
-    const popup = new Popup();
-    popup.setResults(response.actions);
-    document.body.appendChild(popup);
+keyboardEvent$
+  .pipe(filter(({ key, ctrlKey }) => ctrlKey && key === 'k'))
+  .subscribe((event) => {
+    event.preventDefault();
+
+    chrome.runtime.sendMessage({ request: 'get-actions' }, (response) => {
+      const popup = new Popup();
+      popup.setResults(response.actions);
+      document.body.appendChild(popup);
+    });
   });
-});

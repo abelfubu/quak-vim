@@ -1,12 +1,12 @@
 :host {
-  font-size: 19.2px;
+  font-size: 18px;
   z-index: 99999;
   color: #ddd;
   position: fixed;
   top: 320px;
   width: 700px;
   left: calc(50% - 350px);
-  background-color: #232323;
+  background-color: #1c1919;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
@@ -57,8 +57,8 @@
 }
 
 :host .quak-vim-popup-list-item {
-  margin: 4px 6.4px;
-  padding: 8px 8px 4px;
+  margin: 4px 6.4px 4px;
+  padding: 8px 8px 6px;
   display: list-item;
   overflow: hidden;
   border-radius: 8px;
@@ -66,8 +66,13 @@
   border-bottom: 1px solid #151515;
 }
 
+.quak-vim-popup-list-item__highlight {
+  color: #9fe4f9;
+  font-weight: 400;
+}
+
 :host .quak-vim-popup-list-item__active {
-  background-color: #333;
+  background-color: #ffffff18;
 }
 
 :host .quak-vim-popup-list-item__img-row {
@@ -81,9 +86,15 @@
   align-items: center;
 }
 
+:host
+  .quak-vim-popup-list-item__title-row
+  .quak-vim-popup-list-item__highlight {
+  color: #fff;
+  font-weight: 500;
+}
+
 :host .quak-vim-popup-list-item__title-row svg {
   margin-left: 2px;
-  transform: translateY(-2px);
 }
 
 :host .quak-vim-popup-list-item span {
