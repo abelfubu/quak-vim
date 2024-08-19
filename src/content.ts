@@ -1,15 +1,17 @@
-import { filter, fromEvent } from 'rxjs';
-import { Popup } from './components/popup/popup';
-
-declare global {
-  interface Window {
-    handleinput: (e: KeyboardEvent) => void;
-  }
-}
-
-const activeCommands = {
-  f: false,
-};
+import {
+  filter,
+  forkJoin,
+  fromEvent,
+  map,
+  repeat,
+  switchMap,
+  take,
+  tap,
+} from 'rxjs'
+import { QuakVimPanelItem } from './models/quak-vim-panel-item.model'
+import { Popup } from './components/popup/popup'
+import { MessageService } from './services/message/message.service'
+import { DomService } from './services/dom/dom.service'
 
 const keyboardEvent$ = fromEvent<KeyboardEvent>(document, 'keydown').pipe(
   filter(
@@ -18,7 +20,9 @@ const keyboardEvent$ = fromEvent<KeyboardEvent>(document, 'keydown').pipe(
       !(document.activeElement instanceof HTMLInputElement) &&
       !(document.activeElement instanceof HTMLTextAreaElement),
   ),
-);
+)
+
+const quakVimPopupEvent$ = keyboardEvent$.pipe(take(1), repeat())
 
 // keyboardEvent$
 //   .pipe(filter(({ key }) => key === 'f' && !activeCommands.f))
@@ -40,14 +44,52 @@ const keyboardEvent$ = fromEvent<KeyboardEvent>(document, 'keydown').pipe(
 //   window.scrollBy({ top: -100, behavior: 'smooth' });
 // });
 
-keyboardEvent$
-  .pipe(filter(({ key, ctrlKey }) => ctrlKey && key === 'k'))
-  .subscribe((event) => {
-    event.preventDefault();
+quakVimPopupEvent$
+  .pipe(
+    filter(({ key }) => key === 'o'),
+    switchMap(() =>
+      forkJoin([
+        MessageService.sessions$('history'),
+        MessageService.topSites$('history'),
+        MessageService.bookmarks$('history'),
+      ]),
+    ),
+    map(([sessions, topSites, bookmarks]) =>
+      Array.from(
+        topSites
+          .concat(sessions, bookmarks)
+          .reduce(
+            (map, item) => map.set(item.url, item),
+            new Map<string, QuakVimPanelItem>(),
+          )
+          .values(),
+      ),
+    ),
+  )
+  .subscribe((items) => {
+    const popup = new Popup()
+    popup.setResults(items, 'history')
+    document.body.appendChild(popup)
+  })
 
-    chrome.runtime.sendMessage({ request: 'get-actions' }, (response) => {
-      const popup = new Popup();
-      popup.setResults(response.actions);
-      document.body.appendChild(popup);
-    });
-  });
+quakVimPopupEvent$
+  .pipe(
+    filter(({ key }) => key === 'T'),
+    switchMap(() => MessageService.tabs$('tab')),
+  )
+  .subscribe((tabs) => {
+    const popup = new Popup()
+    document.body.appendChild(popup)
+    popup.setResults(tabs, 'tab')
+  })
+
+quakVimPopupEvent$
+  .pipe(
+    filter(({ key }) => key === 'b'),
+    switchMap(() => DomService.links$('edit-tab').pipe(tap(console.log))),
+  )
+  .subscribe((items) => {
+    const popup = new Popup()
+    document.body.appendChild(popup)
+    popup.setResults(items, 'tab')
+  })

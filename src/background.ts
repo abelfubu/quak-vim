@@ -1,21 +1,57 @@
-console.log('BACKGROUND');
+import { Message } from './services/message/models/message.model'
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (message.request === 'get-actions') {
-    chrome.tabs.query({}).then((tabs) => sendResponse({ actions: tabs }));
+chrome.runtime.onMessage.addListener(
+  (message: Message, _sender, sendResponse) => {
+    if (message.request === 'get-tabs') {
+      chrome.tabs.query({}).then(sendResponse)
+    }
+
+    if (message.request === 'get-sessions') {
+      chrome.sessions
+        .getRecentlyClosed({ maxResults: chrome.sessions.MAX_SESSION_RESULTS })
+        .then(sendResponse)
+    }
+
+    if (message.request === 'get-topsites') {
+      chrome.topSites.get().then(sendResponse)
+    }
+
+    if (message.request === 'get-bookmarks') {
+      chrome.bookmarks.getTree().then(sendResponse)
+    }
+
+    if (message.request === 'activate-tab') {
+      if (!message.result) {
+        return chrome.search.query({ text: message.query }).then(sendResponse)
+      }
+
+      if (message.result.type === 'tab') {
+        return chrome.windows
+          .update(message.result.windowId, { focused: true })
+          .then(() => {
+            return chrome.tabs
+              .update(Number(message.result?.id), { active: true })
+              .then(() => sendResponse(true))
+          })
+      }
+
+      if (message.result.mode === 'new-tab') {
+        return chrome.tabs
+          .create({ url: message.result.url })
+          .then(sendResponse)
+      }
+
+      chrome.tabs.query({ currentWindow: true, active: true }).then(([tab]) => {
+        chrome.tabs
+          .update(Number(tab.id), { url: message.result.url })
+          .then(() => sendResponse(true))
+      })
+    }
+
+    if (message.request === 'close-tab') {
+      chrome.tabs.remove(Number(message.result.id)).then(sendResponse)
+    }
+
+    return true
   }
-
-  if (message.request === 'activate-tab') {
-    chrome.windows.update(message.tab.windowId, { focused: true }).then(() => {
-      chrome.tabs
-        .update(message.tab.id, { active: true })
-        .then(() => sendResponse(true));
-    });
-  }
-
-  if (message.request === 'close-tab') {
-    chrome.tabs.remove(message.id).then(() => sendResponse(true));
-  }
-
-  return true;
-});
+)

@@ -45,7 +45,7 @@
 :host .quak-vim-popup__input-wrapper::before {
   position: absolute;
   font-size: 19.2px;
-  top: 0;
+  top: -2px;
   left: 16px;
   content: '🔍';
 }
@@ -67,8 +67,8 @@
 }
 
 .quak-vim-popup-list-item__highlight {
-  color: #9fe4f9;
-  font-weight: 400;
+  color: #fff;
+  font-weight: 500;
 }
 
 :host .quak-vim-popup-list-item__active {
@@ -89,11 +89,11 @@
 :host
   .quak-vim-popup-list-item__title-row
   .quak-vim-popup-list-item__highlight {
-  color: #fff;
-  font-weight: 500;
+  color: #abe9b3;
 }
 
 :host .quak-vim-popup-list-item__title-row svg {
+  min-width: 18px;
   margin-left: 2px;
 }
 
