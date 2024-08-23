@@ -1,18 +1,18 @@
 import { QuakVimPanelItem } from '../../../models/quak-vim-panel-item.model'
 import { QuakVimPanelMode } from '../../../models/quak-vim-panel-mode.model'
 
-export function bookmarkAdapter(
-  source: chrome.bookmarks.BookmarkTreeNode,
+export function historyAdapter(
+  source: chrome.history.HistoryItem,
   mode: QuakVimPanelMode,
 ): QuakVimPanelItem {
   return {
-    favIconUrl: source.url ? `chrome://favicon/${source.url}` : '',
-    id: String(source.id),
+    active: false,
+    favIconUrl: '',
+    id: source.id,
     li: document.createElement('li'),
     mode,
-    title: source.title,
-    type: 'bookmark',
+    title: source.title || '',
+    type: 'history',
     url: source.url || '',
-    active: false,
   }
 }

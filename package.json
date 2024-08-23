@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "node ./esbuild.config.js",
-    "watch": "esbuild ./src/* --bundle --minify --outdir=dist --loader:.json=file --asset-names=[name] --loader:.css=text --watch"
+    "watch": "node ./esbuild.config.watch.js"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.270",

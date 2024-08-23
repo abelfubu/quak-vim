@@ -4,4 +4,7 @@ export type MessageRequest =
   | 'get-topsites'
   | 'activate-tab'
   | 'close-tab'
-  | 'get-bookmarks';
+  | 'get-history'
+  | 'get-bookmarks'
+  | 'back'
+  | 'forward'

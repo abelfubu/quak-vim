@@ -4,14 +4,13 @@ import { QuakVimPanelMode } from './quak-vim-panel-mode.model'
 export type QuakVimPanelItem =
   | {
       active: boolean
-      id?: number | string
-      type: Exclude<QuakVimItemType, 'tab'>
       favIconUrl?: string
+      id?: number | string
       li: HTMLLIElement
       mode: QuakVimPanelMode
       title: string
+      type: Exclude<QuakVimItemType, 'tab'>
       url: string
-      action: () => void
     }
   | {
       active: boolean
@@ -22,6 +21,5 @@ export type QuakVimPanelItem =
       title: string
       type: 'tab'
       url: string
-      action: () => void
       windowId: number
     }

@@ -5,6 +5,7 @@ interface HandlerParams {
   total: QuakVimPanelItem[]
   index: number
   searchTerm: string
+  defaultSelectionIndex: number
   callback?: () => void
 }
 export interface KeyHandler {

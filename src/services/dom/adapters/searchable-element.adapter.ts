@@ -1,8 +1,10 @@
 import { QuakVimPanelItem } from '../../../models/quak-vim-panel-item.model'
 import { QuakVimPanelMode } from '../../../models/quak-vim-panel-mode.model'
+import { isClickableElement } from '../assertions/clickable-element'
+import { isFocusableElement } from '../assertions/focusable-element'
 
 export function searchableElementAdapter(
-  source: HTMLElement,
+  source: Element,
   mode: QuakVimPanelMode,
 ): QuakVimPanelItem {
   return {
@@ -12,22 +14,15 @@ export function searchableElementAdapter(
     active: false,
     mode,
     url: source instanceof HTMLAnchorElement ? source.href : '',
-    action: () => {
-      if (
-        source instanceof HTMLAnchorElement ||
-        source instanceof HTMLButtonElement
-      ) {
-        source.click()
-      }
-
-      if (
-        source instanceof HTMLInputElement ||
-        source instanceof HTMLTextAreaElement ||
-        source instanceof HTMLSelectElement
-      ) {
-        source.focus()
-      }
-    },
+    // action: () => {
+    //   if (isClickableElement(source)) {
+    //     source.click()
+    //   }
+    //
+    //   if (isFocusableElement(source)) {
+    //     source.focus()
+    //   }
+    // },
     title:
       (source instanceof HTMLAnchorElement && source.title) ||
       source.textContent ||

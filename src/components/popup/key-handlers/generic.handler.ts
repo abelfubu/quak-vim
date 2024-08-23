@@ -1,29 +1,34 @@
 import Fuse from 'fuse.js'
 import { highlightMatches } from '../../../utils/highlight-matches.util'
-import { Popup } from '../popup'
+import { QuakVimPanel } from '../popup'
 import { KeyHandler } from './key-handler.model'
 
-const MAX_RESULTS = 12
+const MAX_RESULTS = 10
 
 export const GenericHandler: KeyHandler = {
-  handle({ total, searchTerm, data, index }) {
-    data[index]?.li.classList.remove(Popup.classes.active)
+  handle({ total, searchTerm, index, defaultSelectionIndex, data }) {
     const ul = total[0]?.li.parentElement
+    data[index]?.li.classList.remove(QuakVimPanel.classes.active)
 
     if (!searchTerm) {
       total.slice(0, MAX_RESULTS).forEach((item) => {
         item.li.style.display = 'block'
-        const url = item.li.querySelector(`.${Popup.classes.url}`)!
-        const title = item.li.querySelector(`.${Popup.classes.titleRow} span`)!
+        const url = item.li.querySelector(`.${QuakVimPanel.classes.url}`)!
+        const title = item.li.querySelector(
+          `.${QuakVimPanel.classes.titleRow} span`,
+        )!
         url.textContent = String(item.url)
         title.textContent = String(item.title)
         ul?.appendChild(item.li)
-        data[0]?.li.classList.add(Popup.classes.active)
       })
 
       total
         .slice(MAX_RESULTS)
         .forEach((item) => (item.li.style.display = 'none'))
+
+      total[defaultSelectionIndex]?.li.classList.add(
+        QuakVimPanel.classes.active,
+      )
 
       return {
         index,
@@ -37,12 +42,14 @@ export const GenericHandler: KeyHandler = {
     })
 
     const filtered = fuse.search(searchTerm)
+    filtered[defaultSelectionIndex]?.item.li.classList.add(
+      QuakVimPanel.classes.active,
+    )
 
-    total.forEach((item) => {
-      item.li.style.display = 'none'
-    })
+    total.forEach((item) => (item.li.style.display = 'none'))
+
     return {
-      index: 0,
+      index,
       data: filtered.slice(0, MAX_RESULTS).map(({ item, matches }) => {
         ul?.appendChild(item.li)
         item.li.style.display = 'block'
@@ -64,7 +71,7 @@ export const GenericHandler: KeyHandler = {
 
 function getElementFactory(element: 'url' | 'title', li: HTMLLIElement) {
   return {
-    url: () => li.querySelector(`.${Popup.classes.url}`),
-    title: () => li.querySelector(`.${Popup.classes.titleRow} span`),
+    url: () => li.querySelector(`.${QuakVimPanel.classes.url}`),
+    title: () => li.querySelector(`.${QuakVimPanel.classes.titleRow} span`),
   }[element]
 }

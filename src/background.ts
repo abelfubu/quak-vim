@@ -2,6 +2,14 @@ import { Message } from './services/message/models/message.model'
 
 chrome.runtime.onMessage.addListener(
   (message: Message, _sender, sendResponse) => {
+    if (message.request === 'forward') {
+      chrome.tabs.goForward()
+    }
+
+    if (message.request === 'back') {
+      chrome.tabs.goBack()
+    }
+
     if (message.request === 'get-tabs') {
       chrome.tabs.query({}).then(sendResponse)
     }
@@ -15,14 +23,14 @@ chrome.runtime.onMessage.addListener(
     if (message.request === 'get-topsites') {
       chrome.topSites.get().then(sendResponse)
     }
-
     if (message.request === 'get-bookmarks') {
       chrome.bookmarks.getTree().then(sendResponse)
     }
 
     if (message.request === 'activate-tab') {
       if (!message.result) {
-        return chrome.search.query({ text: message.query }).then(sendResponse)
+        return chrome.tabs.update({ url: message.query }).then(sendResponse)
+        // return chrome.search.query({ text: message.query }).then(sendResponse)
       }
 
       if (message.result.type === 'tab') {
@@ -52,6 +60,10 @@ chrome.runtime.onMessage.addListener(
       chrome.tabs.remove(Number(message.result.id)).then(sendResponse)
     }
 
+    if (message.request === 'get-history') {
+      chrome.history.search({ text: '', maxResults: 500 }).then(sendResponse)
+    }
+
     return true
-  }
+  },
 )

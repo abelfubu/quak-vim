@@ -2,94 +2,56 @@ import {
   filter,
   forkJoin,
   fromEvent,
-  map,
   repeat,
+  share,
   switchMap,
   take,
-  tap,
 } from 'rxjs'
-import { QuakVimPanelItem } from './models/quak-vim-panel-item.model'
-import { Popup } from './components/popup/popup'
-import { MessageService } from './services/message/message.service'
+import { filterKeys } from './operators/filter-keys.operator'
+import { openQuakVimPanel } from './operators/quak-vim-panel.operator'
 import { DomService } from './services/dom/dom.service'
+import { MessageService } from './services/message/message.service'
 
 const keyboardEvent$ = fromEvent<KeyboardEvent>(document, 'keydown').pipe(
   filter(
     ({ key }) =>
       key !== 'Escape' &&
-      !(document.activeElement instanceof HTMLInputElement) &&
-      !(document.activeElement instanceof HTMLTextAreaElement),
-  ),
+      [HTMLInputElement, HTMLTextAreaElement].every(
+        (element) => !(document.activeElement instanceof element)
+      )
+  )
 )
 
-const quakVimPopupEvent$ = keyboardEvent$.pipe(take(1), repeat())
+const quakVimPopupEvent$ = keyboardEvent$.pipe(take(1), repeat(), share())
 
-// keyboardEvent$
-//   .pipe(filter(({ key }) => key === 'f' && !activeCommands.f))
-//   .subscribe(() => {
-//     activeCommands.f = true;
-//     const highlighter = new Highlighter(keyboardEvent$);
-//     highlighter.highlight(() => (activeCommands.f = false));
-//   });
-
-// keyboardEvent$
-//   .pipe(
-//     filter(({ key }) => key === 'j'),
-//     throttleTime(400),
-//   )
-//   .subscribe(() => {
-//     window.scrollBy({ top: 100, behavior: 'smooth' });
-//   });
-// keyboardEvent$.pipe(filter(({ key }) => key === 'k')).subscribe(() => {
-//   window.scrollBy({ top: -100, behavior: 'smooth' });
-// });
-
-quakVimPopupEvent$
-  .pipe(
-    filter(({ key }) => key === 'o'),
-    switchMap(() =>
-      forkJoin([
-        MessageService.sessions$('history'),
-        MessageService.topSites$('history'),
-        MessageService.bookmarks$('history'),
-      ]),
-    ),
-    map(([sessions, topSites, bookmarks]) =>
-      Array.from(
-        topSites
-          .concat(sessions, bookmarks)
-          .reduce(
-            (map, item) => map.set(item.url, item),
-            new Map<string, QuakVimPanelItem>(),
-          )
-          .values(),
-      ),
-    ),
-  )
-  .subscribe((items) => {
-    const popup = new Popup()
-    popup.setResults(items, 'history')
-    document.body.appendChild(popup)
-  })
-
-quakVimPopupEvent$
-  .pipe(
-    filter(({ key }) => key === 'T'),
-    switchMap(() => MessageService.tabs$('tab')),
-  )
-  .subscribe((tabs) => {
-    const popup = new Popup()
-    document.body.appendChild(popup)
-    popup.setResults(tabs, 'tab')
-  })
-
-quakVimPopupEvent$
-  .pipe(
-    filter(({ key }) => key === 'b'),
-    switchMap(() => DomService.links$('edit-tab').pipe(tap(console.log))),
-  )
-  .subscribe((items) => {
-    const popup = new Popup()
-    document.body.appendChild(popup)
-    popup.setResults(items, 'tab')
-  })
+forkJoin([
+  quakVimPopupEvent$.pipe(
+    openQuakVimPanel({
+      data: MessageService.history$('history'),
+      defaultSelectionIndex: -1,
+      keys: [{ ctrl: false, k: 'o' }],
+    })
+  ),
+  quakVimPopupEvent$.pipe(
+    openQuakVimPanel({
+      data: MessageService.tabs$('tab'),
+      defaultSelectionIndex: 0,
+      keys: [{ ctrl: false, k: 'T' }],
+    })
+  ),
+  quakVimPopupEvent$.pipe(
+    openQuakVimPanel({
+      data: DomService.links$('edit-tab'),
+      defaultSelectionIndex: 0,
+      keys: [{ ctrl: false, k: 'f' }],
+    })
+  ),
+  keyboardEvent$.pipe(
+    filterKeys({ ctrl: false, k: 'H' }),
+    switchMap(() => MessageService.back$())
+  ),
+  keyboardEvent$.pipe(
+    filterKeys({ ctrl: false, k: 'L' }),
+    switchMap(() => MessageService.forward$())
+  ),
+]).subscribe()

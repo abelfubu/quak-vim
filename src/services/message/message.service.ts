@@ -6,6 +6,7 @@ import { sessionAdapter } from './adapters/session.adapter'
 import { tabAdapter } from './adapters/tab.adapter'
 import { topSiteAdapter } from './adapters/top-site.adapter'
 import { message$ } from './messenger'
+import { historyAdapter } from './adapters/history.adapter'
 
 export const MessageService = {
   tabs$: (mode: QuakVimPanelMode) =>
@@ -36,9 +37,10 @@ export const MessageService = {
       request: 'get-bookmarks',
     }).pipe(
       map((bookmarks) =>
-        bookmarks.reduce<QuakVimPanelItem[]>((acc, bookmark) => {
-          return acc.concat(extractChildren(bookmark, mode) || [])
-        }, []),
+        bookmarks.reduce<QuakVimPanelItem[]>(
+          (acc, bookmark) => acc.concat(extractChildren(bookmark, mode) || []),
+          [],
+        ),
       ),
     ),
 
@@ -54,6 +56,21 @@ export const MessageService = {
         ),
       ),
     ),
+
+  history$: (mode: QuakVimPanelMode) =>
+    message$<chrome.history.HistoryItem[]>({
+      request: 'get-history',
+    }).pipe(
+      map((history) =>
+        history.reduce<QuakVimPanelItem[]>(
+          (acc, item) => (item ? acc.concat(historyAdapter(item, mode)) : acc),
+          [],
+        ),
+      ),
+    ),
+
+  back$: () => message$<void>({ request: 'back' }),
+  forward$: () => message$<void>({ request: 'forward' }),
 }
 
 function extractChildren(

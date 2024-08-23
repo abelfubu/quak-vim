@@ -3,7 +3,7 @@ import { MessageRequest } from './message-request.type'
 
 type MessageRequestWithTab = Extract<
   MessageRequest,
-  'activate-tab' | 'close-tab'
+  'activate-tab' | 'close-tab' | 'get-history'
 >
 type SimpleMessageRequest = Exclude<
   MessageRequest,
