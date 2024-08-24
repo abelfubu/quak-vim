@@ -10,24 +10,15 @@ import {
   takeUntil,
   tap,
 } from 'rxjs'
+import { QuakVimItemType } from '../../models/quak-vim-item-type.model'
 import { QuakVimPanelItem } from '../../models/quak-vim-panel-item.model'
 import { PopupType } from './models/popup-type.model'
+import { QuakVimPanelClasses } from './models/quak-vim-panel-css.enum'
 import styles from './popup.css'
-import { QuakVimItemType } from '../../models/quak-vim-item-type.model'
 
 export class QuakVimPanel extends HTMLElement {
   private readonly dataSource$ = new BehaviorSubject<QuakVimPanelItem[]>([])
   private readonly destroy$ = new Subject<void>()
-  // private readonly data$: Observable<QuakVimPanelItem[]> =
-  //   this.dataSource$.pipe(
-  //     map((data) =>
-  //       data.map((result) => {
-  //         result.li = this.createListItem(result)
-  //         this.ul.appendChild(result.li)
-  //         return result
-  //       }),
-  //     ),
-  //   )
   private readonly ul = document.createElement('ul')
   readonly input = document.createElement('input')
   readonly inputEvent$ = fromEvent<KeyboardEvent>(this.input, 'keydown').pipe(
@@ -36,24 +27,18 @@ export class QuakVimPanel extends HTMLElement {
     filter(
       ({ key, ctrlKey }) =>
         !(ctrlKey && key !== 'x') ||
-        !['Tab', 'Control', 'Shift', 'Alt'].includes(key),
-    ),
+        !['Tab', 'Control', 'Shift', 'Alt'].includes(key)
+    )
   )
 
-  static observedAttributes = ['listItems', 'with-selection']
-  static classes = {
-    active: 'quak-vim-popup-list-item__active',
-    listItem: 'quak-vim-popup-list-item',
-    input: 'quak-vim-popup__input',
-    imageRow: 'quak-vim-popup-list-item__img-row',
-    titleRow: 'quak-vim-popup-list-item__title-row',
-    url: 'quak-vim-popup-list-item__url',
-  }
+  static observedAttributes = ['with-selection']
 
   constructor() {
     super()
 
     this.attachShadow({ mode: 'open' })
+
+    this.setAttribute('id', 'popup')
     this.setInput()
     const style = document.createElement('style')
     style.textContent = styles
@@ -93,38 +78,9 @@ export class QuakVimPanel extends HTMLElement {
   private setupBackdropListener(): Observable<MouseEvent> {
     return fromEvent<MouseEvent>(document, 'click').pipe(
       filter(({ target }) => target !== this),
-      tap(this.destroy.bind(this)),
+      tap(this.destroy.bind(this))
     )
   }
-
-  // private setupResultsListener(): Observable<{
-  //   index: number
-  //   data: QuakVimPanelItem[]
-  // }> {
-  //   return this.data$.pipe(
-  //     takeUntil(this.destroy$),
-  //     switchMap((results) =>
-  //       this.inputEvent$.pipe(
-  //         startWith(new KeyboardEvent('keydown')),
-  //         scan(
-  //           ({ index, data }, input) => {
-  //             const handler = KeyHandlerFactory(input)
-  //
-  //             return handler.handle({
-  //               index,
-  //               data,
-  //               total: results,
-  //               searchTerm: this.input.value,
-  //               defaultSelectionIndex: this.selectionIndex,
-  //               callback: this.destroy.bind(this),
-  //             })
-  //           },
-  //           { index: this.selectionIndex, data: results },
-  //         ),
-  //       ),
-  //     ),
-  //   )
-  // }
 
   private setInput() {
     const span = document.createElement('span')
@@ -134,7 +90,7 @@ export class QuakVimPanel extends HTMLElement {
     </svg>`
     this.input.setAttribute('type', 'text')
     this.input.setAttribute('placeholder', 'Search')
-    this.input.setAttribute('class', QuakVimPanel.classes.input)
+    this.input.setAttribute('class', QuakVimPanelClasses.input)
     this.input.setAttribute('autocomplete', 'off')
     span.appendChild(this.input)
     this.shadowRoot!.appendChild(span)
@@ -151,7 +107,7 @@ export class QuakVimPanel extends HTMLElement {
   attributeChangedCallback(
     name: string,
     _oldValue: unknown,
-    _newValue: unknown,
+    _newValue: unknown
   ) {
     name
   }
@@ -172,21 +128,31 @@ export class QuakVimPanel extends HTMLElement {
 
     const li = document.createElement('li')
     li.style.display = 'none'
-    li.classList.add(QuakVimPanel.classes.listItem)
+    li.classList.add(QuakVimPanelClasses.listItem)
     if (active) {
-      li.classList.add(QuakVimPanel.classes.active)
+      li.classList.add(QuakVimPanelClasses.active)
     }
     li.setAttribute('data-tabid', (id || 0).toString())
     li.innerHTML = `
-      <div class="${QuakVimPanel.classes.titleRow}">
-      ${getSvgWithType(type)}
-        <span></span>
-      </div>
-      <div class="${QuakVimPanel.classes.imageRow}">
-        <img width="22" height="22" src="${src}" />
-        <span class="${QuakVimPanel.classes.url}">${url}</span>
+      <div class="quak-vim-panel__main">
+        <div class="${QuakVimPanelClasses.titleRow}">
+        ${getSvgWithType(type)}
+          <span></span>
+        </div>
+        <div class="${QuakVimPanelClasses.imageRow}">
+          <img width="22" height="22" src="${src}" />
+          <span class="${QuakVimPanelClasses.url}">${url}</span>
+        </div>
+      <div>
+      <div class="quak-vim-panel__hints">
+      ${
+        type === 'tab'
+          ? '<kbd><span>close</span><span>CTRL+X</span></kbd><kbd><span>new tab</span><span>CTRL+Enter</span></kbd>'
+          : ''
+      }
       </div>
     `
+
     return li
   }
 }

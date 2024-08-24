@@ -1,4 +1,4 @@
-import { QuakVimPanel } from '../popup'
+import { QuakVimPanelClasses } from '../models/quak-vim-panel-css.enum'
 import { KeyHandler } from './key-handler.model'
 
 export const CloseSelectionHandler: KeyHandler = {
@@ -15,7 +15,7 @@ export const CloseSelectionHandler: KeyHandler = {
     const nextIndex = index ? index - 1 : 0
     const newData = data.filter((_, i) => i !== index)
 
-    newData[nextIndex].li.classList.add(QuakVimPanel.classes.active)
+    newData[nextIndex].li.classList.add(QuakVimPanelClasses.active)
 
     return {
       data: newData,

@@ -18,7 +18,8 @@ const keyboardEvent$ = fromEvent<KeyboardEvent>(document, 'keydown').pipe(
       key !== 'Escape' &&
       [HTMLInputElement, HTMLTextAreaElement].every(
         (element) => !(document.activeElement instanceof element)
-      )
+      ) &&
+      !document.activeElement?.hasAttribute('contenteditable')
   )
 )
 

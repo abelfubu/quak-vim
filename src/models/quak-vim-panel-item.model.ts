@@ -9,7 +9,7 @@ export type QuakVimPanelItem =
       li: HTMLLIElement
       mode: QuakVimPanelMode
       title: string
-      type: Exclude<QuakVimItemType, 'tab'>
+      type: Exclude<QuakVimItemType, 'tab' | 'dom-node'>
       url: string
     }
   | {
@@ -22,4 +22,15 @@ export type QuakVimPanelItem =
       type: 'tab'
       url: string
       windowId: number
+    }
+  | {
+      active: boolean
+      favIconUrl?: string
+      id: string
+      li: HTMLLIElement
+      mode: QuakVimPanelMode
+      title: string
+      type: 'dom-node'
+      url: string
+      action: () => void
     }

@@ -1,28 +1,24 @@
 :host {
-  font-size: 18px;
-  z-index: 99999;
-  color: #ddd;
-  position: fixed;
-  top: 320px;
-  width: 700px;
-  left: calc(50% - 350px);
-  background-color: #1c1919;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  animation: fade-in 0.3s;
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Open Sans',
-    'Helvetica Neue',
-    sans-serif;
+  display: block !important;
+  font-size: 18px !important;
+  z-index: 99999 !important;
+  color: #ddd !important;
+  position: fixed !important;
+  top: 320px !important;
+  width: 700px !important;
+  left: calc(50% - 350px) !important;
+  background-color: #1c1919 !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5) !important;
+  animation: fade-in 0.3s !important;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif !important;
+}
+
+:host * {
+  max-width: 100% !important;
+  box-sizing: border-box;
 }
 
 @keyframes fade-in {
@@ -60,7 +56,7 @@
   width: 100%;
   outline: none;
   border: none;
-  background-color: #191919;
+  background-color: #111111;
   padding-left: 48px;
 }
 
@@ -81,12 +77,16 @@
 :host .quak-vim-popup-list-item {
   margin: 4px 6.4px 4px;
   padding: 8px;
-  display: list-item;
+  display: flex;
+  align-items: center;
   overflow: hidden;
   border-radius: 8px;
-  background-color: #202124;
   border: 1px solid transparent;
-  border-bottom: 1px solid #151515;
+  position: relative;
+}
+
+:host .quak-vim-panel__main {
+  flex: 1;
 }
 
 .quak-vim-popup-list-item__highlight {
@@ -97,6 +97,10 @@
 :host .quak-vim-popup-list-item__active {
   background-color: #111111;
   border: 1px solid #abe9b355;
+
+  & kbd {
+    display: flex;
+  }
 }
 
 :host .quak-vim-popup-list-item__img-row {
@@ -108,6 +112,7 @@
   display: flex;
   gap: 9.6px;
   align-items: center;
+  max-width: 100%;
 }
 
 :host
@@ -142,4 +147,29 @@
 :host .quak-vim-popup-list-item__url {
   color: #5ca1f7;
   font-weight: 300;
+  max-width: 500px;
+}
+
+:host .quak-vim-panel__hints {
+  position: absolute;
+  right: 8px;
+  top: 12px;
+  display: flex;
+  gap: 1rem;
+}
+
+:host kbd {
+  display: none;
+  flex-direction: column;
+  min-width: 21px;
+  padding: 4px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans',
+    Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+  font-size: 12px;
+  line-height: 1.5;
+  color: #abe9b3;
+  text-align: center;
+  border-radius: 4px;
+  background-color: #111111;
+  border: 1px solid #abe9b3;
 }

@@ -1,10 +1,14 @@
 export function getUniquesByKey<T, U extends keyof T>(
   source: T[],
-  key: U,
+  keys: U[]
 ): T[] {
   return Array.from(
     source
-      .reduce((map, item) => map.set(item[key], item), new Map<T[U], T>())
-      .values(),
+      .reduce(
+        (map, item) =>
+          map.set(keys.map((k) => String(item[k])).join('-'), item),
+        new Map<string, T>()
+      )
+      .values()
   )
 }

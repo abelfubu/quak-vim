@@ -1,6 +1,6 @@
 import Fuse from 'fuse.js'
 import { highlightMatches } from '../../../utils/highlight-matches.util'
-import { QuakVimPanel } from '../popup'
+import { QuakVimPanelClasses } from '../models/quak-vim-panel-css.enum'
 import { KeyHandler } from './key-handler.model'
 
 const MAX_RESULTS = 10
@@ -8,14 +8,14 @@ const MAX_RESULTS = 10
 export const GenericHandler: KeyHandler = {
   handle({ total, searchTerm, index, defaultSelectionIndex, data }) {
     const ul = total[0]?.li.parentElement
-    data[index]?.li.classList.remove(QuakVimPanel.classes.active)
+    data[index]?.li.classList.remove(QuakVimPanelClasses.active)
 
     if (!searchTerm) {
       total.slice(0, MAX_RESULTS).forEach((item) => {
-        item.li.style.display = 'block'
-        const url = item.li.querySelector(`.${QuakVimPanel.classes.url}`)!
+        item.li.style.display = 'flex'
+        const url = item.li.querySelector(`.${QuakVimPanelClasses.url}`)!
         const title = item.li.querySelector(
-          `.${QuakVimPanel.classes.titleRow} span`,
+          `.${QuakVimPanelClasses.titleRow} span`
         )!
         url.textContent = String(item.url)
         title.textContent = String(item.title)
@@ -26,9 +26,7 @@ export const GenericHandler: KeyHandler = {
         .slice(MAX_RESULTS)
         .forEach((item) => (item.li.style.display = 'none'))
 
-      total[defaultSelectionIndex]?.li.classList.add(
-        QuakVimPanel.classes.active,
-      )
+      total[defaultSelectionIndex]?.li.classList.add(QuakVimPanelClasses.active)
 
       return {
         index,
@@ -43,7 +41,7 @@ export const GenericHandler: KeyHandler = {
 
     const filtered = fuse.search(searchTerm)
     filtered[defaultSelectionIndex]?.item.li.classList.add(
-      QuakVimPanel.classes.active,
+      QuakVimPanelClasses.active
     )
 
     total.forEach((item) => (item.li.style.display = 'none'))
@@ -52,7 +50,7 @@ export const GenericHandler: KeyHandler = {
       index,
       data: filtered.slice(0, MAX_RESULTS).map(({ item, matches }) => {
         ul?.appendChild(item.li)
-        item.li.style.display = 'block'
+        item.li.style.display = 'flex'
 
         matches?.forEach(({ indices, value, key }) => {
           const getElement = getElementFactory(key as 'url' | 'title', item.li)
@@ -71,7 +69,7 @@ export const GenericHandler: KeyHandler = {
 
 function getElementFactory(element: 'url' | 'title', li: HTMLLIElement) {
   return {
-    url: () => li.querySelector(`.${QuakVimPanel.classes.url}`),
-    title: () => li.querySelector(`.${QuakVimPanel.classes.titleRow} span`),
+    url: () => li.querySelector(`.${QuakVimPanelClasses.url}`),
+    title: () => li.querySelector(`.${QuakVimPanelClasses.titleRow} span`),
   }[element]
 }
